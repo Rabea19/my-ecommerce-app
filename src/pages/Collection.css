@@ -1,0 +1,81 @@
+.MuiButton-root {
+  border-radius: 25px !important;
+  padding: 10px 28px !important;
+  font-weight: bold !important;
+  text-transform: capitalize !important;
+  transition: all 0.3s ease !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+/* Gradient للزرار الأساسي (Contained) */
+.MuiButton-containedPrimary {
+  background: linear-gradient(135deg, #ff9800, #ff5722) !important;
+  color: #fff !important;
+  box-shadow: 0 6px 18px rgba(255, 87, 34, 0.4) !important;
+}
+
+.MuiButton-containedPrimary:hover {
+  transform: translateY(-3px) !important;
+  box-shadow: 0 10px 28px rgba(255, 87, 34, 0.6) !important;
+}
+
+/* Outline مزخرف للزرار غير المحدد */
+.MuiButton-outlinedPrimary {
+  border: 2px solid #ff5722 !important;
+  color: #ff5722 !important;
+}
+
+.MuiButton-outlinedPrimary:hover {
+  background: linear-gradient(135deg, #ff9800, #ff5722) !important;
+  color: #fff !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 20px rgba(255, 87, 34, 0.4) !important;
+}
+/* .crochet-btn {
+  border-radius: 30px !important;
+  padding: 12px 32px !important;
+  font-weight: 700 !important;
+  font-size: 16px !important;
+  color: #fff !important;
+  background: linear-gradient(135deg, #8e44ad, #e91e63) !important;
+  box-shadow: 0 6px 18px rgba(233, 30, 99, 0.4) !important;
+  position: relative !important;
+  overflow: hidden !important;
+  transition: all 0.3s ease !important;
+}
+
+.crochet-btn:hover {
+  transform: translateY(-3px) !important;
+  box-shadow: 0 10px 28px rgba(233, 30, 99, 0.6) !important;
+  background: linear-gradient(135deg, #e91e63, #8e44ad) !important;
+} */
+.MuiButton-root.crochet-btn {
+  border-radius: 30px !important;
+  padding: 12px 32px !important;
+  font-weight: 700 !important;
+  font-size: 16px !important;
+  color: #fff !important;
+  background: linear-gradient(135deg, #8e44ad, #e91e63) !important;
+  box-shadow: 0 6px 18px rgba(233, 30, 99, 0.4) !important;
+  position: relative !important;
+  overflow: hidden !important;
+  transition: all 0.4s ease !important;
+}
+
+/* Shine effect */
+.MuiButton-root.crochet-btn::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -75%;
+  width: 50%;
+  height: 200%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(25deg);
+  transition: all 0.5s ease;
+}
+
+.MuiButton-root.crochet-btn:hover::after {
+  left: 125%;
+}

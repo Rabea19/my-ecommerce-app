@@ -1,0 +1,155 @@
+/* ===== الصفحة الرئيسية ===== */
+.checkout-page {
+  max-width: 800px; /* عرض مناسب للصفحة */
+  margin: 0 auto; /* تمركز الصفحة في النص */
+  padding: 20px;
+  font-family: "Arial", sans-serif;
+  color: #333;
+  overflow-x: hidden; /* لمنع أي مشاكل عند التحريك */
+}
+
+/* ===== أنيميشن Fade-in من تحت ===== */
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== قائمة المنتجات ===== */
+.checkout-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* ===== كل عنصر في الكارت ===== */
+.checkout-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
+  transition: background 0.25s ease;
+  animation: fadeInUp 0.6s ease forwards;
+}
+
+/* ===== تأخير تدريجي بين العناصر ===== */
+.checkout-item:nth-child(1) {
+  animation-delay: 0s;
+}
+.checkout-item:nth-child(2) {
+  animation-delay: 0.1s;
+}
+.checkout-item:nth-child(3) {
+  animation-delay: 0.2s;
+}
+.checkout-item:nth-child(4) {
+  animation-delay: 0.3s;
+}
+.checkout-item:nth-child(5) {
+  animation-delay: 0.4s;
+}
+/* يمكن إضافة المزيد حسب عدد العناصر */
+
+/* ===== Hover سلس للعنصر ===== */
+.checkout-item:hover {
+  background-color: #f9f9f9;
+}
+
+/* ===== الصور ===== */
+.checkout-image {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  border-radius: 8px;
+  transition: transform 0.3s ease;
+}
+
+.checkout-item:hover .checkout-image {
+  transform: scale(1.05);
+}
+
+/* ===== معلومات المنتج ===== */
+.checkout-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.checkout-title {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.checkout-quantity {
+  font-size: 14px;
+  color: #555;
+}
+
+/* ===== السعر الكلي ===== */
+.checkout-total {
+  text-align: right;
+  margin-top: 20px;
+  font-size: 18px;
+  font-weight: bold;
+  color: #2e7d32;
+  animation: fadeInUp 0.6s ease forwards;
+  animation-delay: 0.5s; /* يظهر بعد العناصر */
+}
+
+/* ===== زر التأكيد ===== */
+.checkout-button {
+  margin-top: 20px;
+  padding: 12px 20px;
+  font-size: 16px;
+  font-weight: 600;
+  background: linear-gradient(135deg, #1976d2, #42a5f5);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  animation: fadeInUp 0.6s ease forwards;
+  animation-delay: 0.6s;
+}
+
+/* Hover */
+.checkout-button:hover {
+  transform: scale(1.03);
+  box-shadow: 0 8px 20px rgba(25, 118, 210, 0.4);
+}
+
+/* ===== Click (Active) ===== */
+.checkout-button:active {
+  transform: scale(0.95); /* ينضغط شوية للداخل */
+  box-shadow: 0 4px 10px rgba(25, 118, 210, 0.3); /* ظل أقل */
+  transition: all 0.1s ease; /* سريع و smooth */
+}
+.checkout-total {
+  text-align: right;
+  margin-top: 20px;
+  font-size: 18px;
+  font-weight: bold;
+  color: #2e7d32;
+  animation: fadeInUp 0.6s ease forwards;
+  animation-delay: 0.5s; /* يظهر بعد العناصر في الكارت */
+  transform: translateY(20px); /* يبدأ من تحت */
+  opacity: 0; /* يبدأ شفاف */
+}
+
+/* ===== أنيميشن fadeInUp ===== */
+@keyframes fadeInUp {
+  0% {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
