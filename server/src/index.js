@@ -1,0 +1,14 @@
+import mongoose from 'mongoose';
+import express from 'express';
+import { fileURLToPath } from 'node:url';
+import { createApp } from './app.js';
+if (!process.env.MONGODB_URI) throw new Error('Set MONGODB_URI in server/.env');
+await mongoose.connect(process.env.MONGODB_URI);
+const app=createApp();
+const root=fileURLToPath(new URL('../../',import.meta.url));
+app.use('/admin',express.static(root+'admin/dist'));
+app.get(/^\/admin(?:\/.*)?$/,(_req,res)=>res.sendFile(root+'admin/dist/index.html'));
+app.use(express.static(root+'build'));
+app.get(/.*/,(_req,res)=>res.sendFile(root+'build/index.html'));
+const server=app.listen(process.env.PORT||4000,()=>console.log('Simple Market listening on port '+(process.env.PORT||4000)));
+for(const signal of ['SIGTERM','SIGINT'])process.on(signal,()=>server.close(async()=>{await mongoose.disconnect();process.exit(0);}));

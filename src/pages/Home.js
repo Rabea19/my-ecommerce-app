@@ -5,16 +5,16 @@ import InstagramIcon from "@mui/icons-material/Instagram";
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import ProductCard from "../components/ProductCard";
-import { supabase } from "../lib/supabase";
+import { api } from "../lib/api";
 import "./home.css";
 
 export default function Home({ searchTerm }) {
   const [products, setProducts] = useState([]);
 
-  // 🔹 جلب المنتجات من Supabase
+  // 🔹 جلب المنتجات من API
   useEffect(() => {
     const fetchProducts = async () => {
-      const { data, error } = await supabase.from("products").select("*");
+      const { data, error } = await api.from("products").select("*");
       if (!error) setProducts(data);
     };
     fetchProducts();

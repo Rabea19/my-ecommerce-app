@@ -24,7 +24,11 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "server": "npm --prefix server start",
+    "admin": "npm --prefix admin run dev",
+    "build:all": "npm run build && npm --prefix admin run build",
+    "setup": "npm ci && npm --prefix admin ci && npm --prefix server ci"
   },
   "eslintConfig": {
     "extends": [
@@ -43,5 +47,6 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  }
+  },
+  "proxy": "http://localhost:4000"
 }

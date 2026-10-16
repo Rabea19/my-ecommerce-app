@@ -1,3 +1,4 @@
+import { api } from "../lib/api";
 import * as React from "react";
 import {
   Drawer,
@@ -130,7 +131,9 @@ export default function DrawerMenu({ open, onClose }) {
           {isAuthenticated && (
             <ListItem disablePadding>
               <ListItemButton
-                onClick={() => {
+                onClick={async () => {
+                  const {error} = await api.auth.signOut();
+                  if (error) { alert(error.message); return; }
                   dispatch(logout());
                   navigate("/");
                   onClose();

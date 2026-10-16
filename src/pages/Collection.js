@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { Box, Button, Grid, Typography } from "@mui/material";
 import ProductCard from "../components/ProductCard";
-import { supabase } from "../lib/supabase";
+import { api } from "../lib/api";
+import { useSearchParams } from "react-router-dom";
 import "./Collection.css"; // علشان الأزرار القديمة زي crochet-btn
 
 export default function Collection() {
   const [products, setProducts] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState("all");
-  const [search, setSearch] = useState("");
+  const [params] = useSearchParams();
+  const [selectedCategory, setSelectedCategory] = useState(params.get("category") || "all");
+  useEffect(() => { setSelectedCategory(params.get("category") || "all"); }, [params]);
+  const [search] = useState("");
 
   // الفئات زي القديمة
   const categories = [
@@ -20,10 +23,10 @@ export default function Collection() {
     "furniture",
   ];
 
-  // جلب البيانات من Supabase
+  // جلب البيانات من API
   useEffect(() => {
     const fetchProducts = async () => {
-      const { data, error } = await supabase.from("products").select("*");
+      const { data, error } = await api.from("products").select("*");
       if (!error) setProducts(data);
     };
     fetchProducts();

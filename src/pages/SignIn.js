@@ -1,4 +1,5 @@
 import * as React from "react";
+import { api } from "../lib/api";
 import { useDispatch } from "react-redux";
 import { login } from "../store/authSlice";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -15,38 +16,29 @@ import {
 
 export default function SignIn() {
   const dispatch = useDispatch();
+  const [register, setRegister] = React.useState(false);
+  const [busy, setBusy] = React.useState(false);
+  const [error, setError] = React.useState("");
   const navigate = useNavigate();
   const location = useLocation();
 
   const from = location.state?.from?.pathname || "/checkout";
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    const data = new FormData(e.currentTarget);
-    const email = data.get("email");
-    const password = data.get("password");
-
-    dispatch(login({ email }));
-
-    navigate(from, { replace: true });
+  const handleSubmit = async (e) => {
+    e.preventDefault(); if (busy) return;
+    const form = new FormData(e.currentTarget); setBusy(true); setError("");
+    const {data, error} = await api.auth[register ? "signUp" : "signInWithPassword"]({email:form.get("email"), password:form.get("password")});
+    setBusy(false); if (error) { setError(error.message); return; }
+    dispatch(login(data.user)); navigate(from, {replace:true});
   };
-
-  const handleGoogleLogin = () => {
-    dispatch(login({ email: "googleuser@example.com" }));
-    navigate(from, { replace: true });
-  };
-
-  const handleFacebookLogin = () => {
-    dispatch(login({ email: "facebookuser@example.com" }));
-    navigate(from, { replace: true });
-  };
+  const handleGoogleLogin = () => setError("Google sign-in is not configured. Please use email and password.");
+  const handleFacebookLogin = () => setError("Facebook sign-in is not configured. Please use email and password.");
 
   return (
     <Container maxWidth="sm" sx={{ mt: 8 }}>
       <Paper elevation={4} sx={{ p: 4 }}>
         <Typography variant="h4" align="center" gutterBottom>
-          Sign In
+          {register ? "Create Account" : "Sign In"}
         </Typography>
 
         <Box component="form" onSubmit={handleSubmit}>
@@ -68,11 +60,15 @@ export default function SignIn() {
             margin="normal"
           />
 
-          <Button type="submit" variant="contained" fullWidth sx={{ mt: 3 }}>
-            Sign In
+          <Button disabled={busy} type="submit" variant="contained" fullWidth sx={{ mt: 3 }}>
+            {register ? "Create Account" : "Sign In"}
           </Button>
         </Box>
 
+        {error && <Typography role="alert" color="error" sx={{mt:2}}>{error}</Typography>}
+        <Button fullWidth onClick={() => { setRegister(!register); setError(""); }}>
+          {register ? "Already registered? Sign In" : "Create an account"}
+        </Button>
         <Divider sx={{ my: 3 }}>or</Divider>
 
         <Stack spacing={2}>

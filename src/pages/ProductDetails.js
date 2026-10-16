@@ -1,10 +1,16 @@
 import { useParams } from "react-router-dom";
-import products from "../data/products";
+import { api } from "../lib/api";
 import { useEffect, useState } from "react";
 
 export default function ProductDetails() {
   const { id } = useParams();
-  const product = products.find((p) => p.id === Number(id));
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => { let active = true;
+    api.from("products").select("*").eq("id", id).single().then(({data}) => {
+      if (active) { setProduct(data); setLoading(false); }
+    }); return () => { active = false; };
+  }, [id]);
 
   const [show, setShow] = useState(false);
 
@@ -12,6 +18,7 @@ export default function ProductDetails() {
     setTimeout(() => setShow(true), 100);
   }, []);
 
+  if (loading) return <h2>Loading product...</h2>;
   if (!product) return <h2>Product not found</h2>;
 
   return (
@@ -19,7 +26,7 @@ export default function ProductDetails() {
       <div style={styles.container}>
         {/* الصورة */}
         <div style={styles.imageBox}>
-          <img src={product.image} alt={product.title} style={styles.image} />
+          <img src={product.image} alt={product.name} style={styles.image} />
         </div>
 
         {/* التفاصيل */}
@@ -29,7 +36,7 @@ export default function ProductDetails() {
             ...(show ? styles.detailsShow : {}),
           }}
         >
-          <h1>{product.title}</h1>
+          <h1>{product.name}</h1>
           <p style={styles.price}>{product.price} EGP</p>
           <p style={styles.desc}>
             This is a premium product with high quality materials and excellent

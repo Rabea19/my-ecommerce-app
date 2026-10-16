@@ -1,8 +1,9 @@
-import React from "react";
-import { useSelector } from "react-redux";
+import React, { useRef, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import { Navigate } from "react-router-dom";
 import "./Checkout.css"; // استخدمنا ملف CSS لتنسيق الصفحة
-import { supabase } from "../lib/supabase";
+import { request } from "../lib/api";
+import { clearCart } from "../store/cartSlice";
 function Checkout() {
   // جلب المنتجات في الكارت من Redux
   const cartItems = useSelector((state) => state.cart.items);
@@ -16,21 +17,23 @@ function Checkout() {
     0,
   );
 
+  const dispatch = useDispatch();
+  const [busy, setBusy] = useState(false);
+  const lock = useRef(false);
   const handleCheckout = async () => {
-    const { error } = await supabase.from("orders").insert([
-      {
-        products: cartItems,
-        total_price: totalPrice,
-        status: "pending",
-      },
-    ]);
-
-    if (error) {
-      alert("Error placing order");
-      console.log(error);
-    } else {
-      alert("Order placed successfully!");
+    if (lock.current || !cartItems.length) return;
+    lock.current = true; setBusy(true);
+    const fingerprint = JSON.stringify(cartItems.map(({id, quantity}) => ({id, quantity})));
+    let attempt; try { attempt = JSON.parse(sessionStorage.getItem("checkoutAttempt")); } catch {}
+    if (!attempt || attempt.fingerprint !== fingerprint) {
+      attempt = {fingerprint, key:crypto.randomUUID()};
+      sessionStorage.setItem("checkoutAttempt", JSON.stringify(attempt));
     }
+    try {
+      await request("/orders", {method:"POST", headers:{"Idempotency-Key":attempt.key}, body:JSON.stringify({products:cartItems.map(({id,quantity})=>({id,quantity}))})});
+      dispatch(clearCart()); sessionStorage.removeItem("checkoutAttempt"); alert("Order placed successfully!");
+    } catch (error) { alert(error.message); }
+    finally { lock.current = false; setBusy(false); }
   };
 
   // لو المستخدم مش مسجل دخول، نوجهه لصفحة SignIn
@@ -66,7 +69,7 @@ function Checkout() {
 
           <h2 className="checkout-total">Total: ${totalPrice}</h2>
 
-          <button className="checkout-button" onClick={handleCheckout}>
+          <button disabled={busy} className="checkout-button" onClick={handleCheckout}>
             Confirm Purchase
           </button>
         </>
