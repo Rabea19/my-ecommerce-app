@@ -17,9 +17,10 @@ const productInput = body => {
 export function createApp() {
  const app = express();
  app.disable('x-powered-by');
+ if (process.env.VERCEL) app.set('trust proxy', 1);
  app.use(helmet({ contentSecurityPolicy: false }), cookieParser());
  // Same-origin clients only; non-browser API clients may omit Origin.
- app.use('/api', (req,res,next) => { const origin = req.get('origin'); const allowed = (process.env.ALLOWED_ORIGINS || 'http://localhost:3000,http://localhost:5173,http://localhost:4000').split(','); if (origin && !allowed.includes(origin)) return res.status(403).json({ error: 'Origin not allowed' }); next(); });
+ app.use('/api', (req,res,next) => { const origin = req.get('origin'); const allowed = (process.env.ALLOWED_ORIGINS || 'http://localhost:3000,http://localhost:5173,http://localhost:4000').split(',').map(value => value.trim()).filter(Boolean); for (const host of [process.env.VERCEL_URL, process.env.VERCEL_PROJECT_PRODUCTION_URL]) { if (host) allowed.push('https://' + host); } if (origin && !allowed.includes(origin)) return res.status(403).json({ error: 'Origin not allowed' }); next(); });
  app.use('/api', rateLimit({ windowMs: 60000, limit: 300, standardHeaders: 'draft-8', legacyHeaders: false }));
  app.get('/api/health', (_req,res) => res.status(mongoose.connection.readyState === 1 ? 200 : 503).json({ status: mongoose.connection.readyState === 1 ? 'ok' : 'unavailable' }));
  app.use('/api', async (req,_res,next) => { const token = req.cookies.market_session; if (typeof token === 'string' && token.length === 64) { const session = await Session.findOne({ tokenHash: digest(token), expires: { $gt: new Date() } }).populate('user'); req.user = session?.user; } next(); });

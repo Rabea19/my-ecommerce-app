@@ -100,3 +100,13 @@ Data is refreshed on page entry/reload; the Users page polls every 15 seconds. P
 ## Validation of this change
 
 See `VALIDATION.md` for the checks actually run and limitations. A project becomes strong CV evidence through working features, tests and clear architecture; merging two interfaces alone does not establish senior engineering proficiency.
+
+## Vercel deployment
+
+Import the `feat/mongodb-market-dashboard` branch into a new Vercel project. Framework: Other; root directory: repository root. `vercel.json` supplies install/build commands and output directory. Use Node 24.
+
+Set `MONGODB_URI` as a sensitive server environment variable in Vercel (never commit it). Set `ALLOWED_ORIGINS` to the exact HTTPS production origin, without a trailing slash, especially when using custom domains. Standard Vercel deployment and production hostnames are also allowed from Vercel system variables. Do not set ADMIN_PASSWORD in Vercel; the administrator is already provisioned in Atlas.
+
+Storefront: `/`; dashboard: `/admin/`; API health: `/api/health`. The Node function reuses MongoDB connections within each instance. Images are stored in MongoDB, not the ephemeral filesystem. Rate limits currently use instance-local memory and are not a global distributed quota.
+
+Before public release, review dependency audit findings; a successful build is not a security clearance. Verify authentication, product images, checkout, stock changes and cancellation on the deployed domain.
