@@ -4,7 +4,19 @@ import { createSlice } from "@reduxjs/toolkit";
   1️⃣ بنحاول نجيب الكارت من Local Storage
   لو مش موجود → نخليه Array فاضي
 */
-const savedCart = JSON.parse(localStorage.getItem("cartItems")) || [];
+let savedCart = [];
+try {
+  const parsed = JSON.parse(localStorage.getItem("cartItems"));
+  if (Array.isArray(parsed))
+    savedCart = parsed.filter(
+      (i) =>
+        i &&
+        i.id &&
+        Number.isInteger(i.quantity) &&
+        i.quantity > 0 &&
+        Number.isFinite(i.price),
+    );
+} catch {}
 
 /*
   2️⃣ الحالة الابتدائية للكارت
@@ -28,6 +40,11 @@ const cartSlice = createSlice({
         (item) => item.id === action.payload.id,
       );
 
+      if (
+        action.payload.stock !== undefined &&
+        (existingItem?.quantity || 0) >= action.payload.stock
+      )
+        return;
       if (existingItem) {
         existingItem.quantity += 1;
       } else {
@@ -43,7 +60,7 @@ const cartSlice = createSlice({
     */
     increaseQuantity: (state, action) => {
       const item = state.items.find((item) => item.id === action.payload);
-      if (item) {
+      if (item && (item.stock === undefined || item.quantity < item.stock)) {
         item.quantity += 1;
       }
 
@@ -71,6 +88,10 @@ const cartSlice = createSlice({
     /*
       🗑️ مسح الكارت كله
     */
+    removeFromCart: (state, action) => {
+      state.items = state.items.filter((item) => item.id !== action.payload);
+      localStorage.setItem("cartItems", JSON.stringify(state.items));
+    },
     clearCart: (state) => {
       state.items = [];
       localStorage.removeItem("cartItems");
@@ -81,8 +102,13 @@ const cartSlice = createSlice({
 /*
   4️⃣ تصدير الأكشنز
 */
-export const { addToCart, increaseQuantity, decreaseQuantity, clearCart } =
-  cartSlice.actions;
+export const {
+  addToCart,
+  increaseQuantity,
+  decreaseQuantity,
+  removeFromCart,
+  clearCart,
+} = cartSlice.actions;
 
 /*
   5️⃣ تصدير الريديـوسر
