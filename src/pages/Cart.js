@@ -1,4 +1,5 @@
 import { useSelector, useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import {
   increaseQuantity,
   decreaseQuantity,
@@ -7,6 +8,7 @@ import {
 import "./Cart.css";
 
 export default function Cart() {
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const cartItems = useSelector((state) => state.cart.items);
 
@@ -66,7 +68,7 @@ export default function Cart() {
           <div className="cart-actions">
             <button
               className="checkout-btn"
-              onClick={() => alert("Mock checkout: thank you for your order!")}
+              onClick={() => navigate("/checkout")}
             >
               Checkout
             </button>
