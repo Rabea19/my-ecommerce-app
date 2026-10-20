@@ -1,7 +1,7 @@
 name: Storefront verification
 on:
   push:
-    branches: [design/premium-storefront]
+    branches: [design/premium-storefront, design/premium-dashboard]
   pull_request:
     branches: [vercel-release]
 permissions:

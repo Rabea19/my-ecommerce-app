@@ -1,17 +1,69 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
+@layer base {
+  body {
+    @apply m-0 bg-[#faf9f6] text-[#302737] antialiased;
+    font-family: Arial, sans-serif;
   }
-  to {
-    opacity: 1;
-    transform: scale(1);
+  * {
+    box-sizing: border-box;
+  }
+  button,
+  input,
+  select {
+    font: inherit;
+  }
+  button,
+  a,
+  input,
+  select {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#806090] focus-visible:ring-offset-2;
+  }
+  button:disabled {
+    @apply opacity-50 cursor-not-allowed;
+  }
+  h1,
+  h2,
+  h3 {
+    overflow-wrap: anywhere;
   }
 }
-
-.animate-fadeIn {
-  animation: fadeIn 0.2s ease-out;
+@layer components {
+  .panel {
+    @apply rounded-2xl border border-[#e9e3eb] bg-white p-5 sm:p-6;
+  }
+  .field {
+    @apply w-full min-w-0 rounded-xl border border-[#ddd5e1] bg-white px-3 py-3 text-sm;
+  }
+  .btn {
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#50345f] px-4 py-2 text-sm font-semibold text-white hover:bg-[#674775];
+  }
+  .btn-soft {
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#ddd5e1] bg-white px-4 py-2 text-sm font-semibold text-[#50345f] hover:bg-[#f5eff8];
+  }
+  .muted {
+    @apply text-sm text-[#746c79];
+  }
+  .page-title {
+    @apply text-3xl sm:text-4xl font-normal tracking-tight;
+    font-family: Georgia, serif;
+  }
+  .data-table {
+    @apply w-full text-left text-sm;
+  }
+  .data-table th {
+    @apply bg-[#f7f4f8] px-4 py-4 text-xs uppercase tracking-wider text-[#746c79] font-semibold;
+  }
+  .data-table td {
+    @apply border-t border-[#eee8ef] px-4 py-4;
+    overflow-wrap: anywhere;
+  }
+  .badge {
+    @apply inline-flex rounded-full px-3 py-1 text-xs font-semibold capitalize;
+  }
+}
+dialog::backdrop {
+  background: rgb(35 22 44 / 0.5);
+  backdrop-filter: blur(3px);
 }

@@ -13,7 +13,7 @@ const Orders = lazy(() => import("./pages/Orders"));
 const OrderDetails = lazy(() => import("./pages/OrderDetails"));
 
 function Loading() {
-  return <div className="text-white p-8">Loading...</div>;
+  return <div className="text-[#50345f] p-8">Loading...</div>;
 }
 
 export default function App() {
@@ -83,7 +83,7 @@ export default function App() {
         toastOptions={{
           duration: 3000,
           style: {
-            background: "#1f2937",
+            background: "#50345f",
             color: "#fff",
             textAlign: "center",
           },

@@ -1,74 +1,59 @@
 import { NavLink } from "react-router-dom";
-import { LayoutDashboard, Users, Package, Layers } from "lucide-react";
-import { useState } from "react";
-
-export default function Sidebar() {
-  const [open, setOpen] = useState(false);
-
+import {
+  LayoutDashboard,
+  Users,
+  Package,
+  Layers,
+  ShoppingBag,
+  ArrowUpRight,
+} from "lucide-react";
+const links = [
+  ["/", "Overview", LayoutDashboard],
+  ["/orders", "Orders", ShoppingBag],
+  ["/products", "Products", Package],
+  ["/catalog", "Catalog", Layers],
+  ["/users", "Customers", Users],
+];
+export default function Sidebar({ onNavigate }) {
   return (
-    <>
-      {/* Mobile Menu Button */}
-      <button
-        onClick={() => setOpen(true)}
-        className="lg:hidden fixed top-4 left-4 z-50 bg-gray-900 p-2 rounded-lg text-white"
+    <div className="flex flex-col h-full">
+      <a
+        href="/admin/"
+        className="text-3xl font-serif tracking-tight text-[#50345f] mb-2"
       >
-        ☰
-      </button>
-
-      {/* Overlay */}
-      {open && (
-        <div
-          onClick={() => setOpen(false)}
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-        />
-      )}
-
-      <div
-        className={`fixed lg:static top-0 left-0 h-full w-64 bg-gray-900 text-white p-6 space-y-6 transform transition-transform duration-300 z-50
-        ${open ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0`}
-      >
-        <h2 className="text-2xl font-bold">Admin Panel</h2>
-
-        <nav className="space-y-2">
-          <SidebarLink
-            to="/"
-            icon={<LayoutDashboard size={18} />}
-            label="Dashboard"
-          />
-          <SidebarLink to="/users" icon={<Users size={18} />} label="Users" />
-          <SidebarLink
-            to="/products"
-            icon={<Package size={18} />}
-            label="Products"
-          />
-          <SidebarLink
-            to="/catalog"
-            icon={<Layers size={18} />}
-            label="Catalog"
-          />
-          <SidebarLink
-            to="/orders"
-            icon={<Layers size={18} />}
-            label="Orders"
-          />
-        </nav>
+        market<span className="text-[#a286ad]">.</span>
+      </a>
+      <p className="text-[10px] uppercase tracking-[.24em] muted mb-10">
+        The store studio
+      </p>
+      <p className="muted text-xs uppercase tracking-widest mb-4">Workspace</p>
+      <nav aria-label="Admin navigation" className="space-y-2">
+        {links.map(([to, label, Icon]) => (
+          <NavLink
+            key={to}
+            end={to === "/"}
+            to={to}
+            onClick={onNavigate}
+            className={({ isActive }) =>
+              `flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold ${isActive ? "bg-[#50345f] text-white" : "text-[#746c79] hover:bg-[#f0eaf3]"}`
+            }
+          >
+            <Icon size={19} />
+            {label}
+          </NavLink>
+        ))}
+      </nav>
+      <div className="mt-auto pt-12">
+        <div className="rounded-2xl bg-[#f4eef6] p-4">
+          <p className="font-serif text-lg">Your store, beautifully managed.</p>
+          <a
+            href="/"
+            className="mt-4 flex items-center gap-2 text-sm text-[#50345f]"
+          >
+            Visit storefront <ArrowUpRight size={16} />
+          </a>
+        </div>
       </div>
-    </>
-  );
-}
-
-function SidebarLink({ to, icon, label }) {
-  return (
-    <NavLink
-      to={to}
-      className={({ isActive }) =>
-        `flex items-center gap-3 p-3 rounded-lg transition ${
-          isActive ? "bg-blue-600" : "hover:bg-gray-800"
-        }`
-      }
-    >
-      {icon}
-      <span>{label}</span>
-    </NavLink>
+    </div>
   );
 }

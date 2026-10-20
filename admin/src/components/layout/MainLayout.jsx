@@ -1,24 +1,35 @@
+import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import Navbar from "./Navbar";
 import Sidebar from "./Sidebar";
-import { Toaster } from "react-hot-toast";
-
+import { Modal } from "../AdminUI";
 export default function MainLayout() {
+  const [open, setOpen] = useState(false);
   return (
-    <div className="flex min-h-screen bg-gray-900 text-white">
-      {/* Sidebar */}
-      <Sidebar />
-
-      {/* Content Area */}
-      <div className="flex-1 flex flex-col w-full">
-        <Navbar />
-
-        <main className="flex-1 p-6 bg-gray-800">
+    <div className="min-h-screen lg:flex">
+      <a href="#main-content" className="sr-only focus:not-sr-only">
+        Skip to content
+      </a>
+      <aside className="hidden lg:block w-60 shrink-0 bg-white border-r border-[#e9e3eb] p-6 sticky top-0 h-screen">
+        <Sidebar />
+      </aside>
+      <div className="min-w-0 flex-1">
+        <Navbar onMenu={() => setOpen(true)} />
+        <main
+          id="main-content"
+          className="max-w-[1500px] mx-auto p-4 sm:p-7 xl:p-10"
+        >
           <Outlet />
         </main>
+        <footer className="px-7 py-5 muted text-xs">
+          Market studio · Made for your everyday
+        </footer>
       </div>
-
-      <Toaster position="bottom-center" reverseOrder={false} />
+      {open && (
+        <Modal title="Workspace" onClose={() => setOpen(false)}>
+          <Sidebar onNavigate={() => setOpen(false)} />
+        </Modal>
+      )}
     </div>
   );
 }
