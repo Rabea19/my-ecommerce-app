@@ -57,7 +57,10 @@ export function Modal({ title, onClose, children }) {
   return (
     <dialog
       ref={ref}
-      onCancel={onClose}
+      onCancel={(event) => {
+        event.preventDefault();
+        onClose();
+      }}
       aria-label={title}
       className="m-auto w-[calc(100%-2rem)] max-w-lg max-h-[90dvh] overflow-y-auto rounded-2xl p-5 sm:p-7 text-[#302737]"
     >

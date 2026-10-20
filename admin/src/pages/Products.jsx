@@ -20,6 +20,7 @@ export default function Products({ catalog = false }) {
     [form, setForm] = useState(null),
     [file, setFile] = useState(null),
     [busy, setBusy] = useState(false);
+  const [saveError, setSaveError] = useState("");
   const categories = [
     ...new Set([
       "Mobiles",
@@ -35,12 +36,14 @@ export default function Products({ catalog = false }) {
       p.name.toLowerCase().includes(q.toLowerCase()),
   );
   const edit = (p) => {
+    setSaveError("");
     setFile(null);
     setForm({ ...p });
   };
   async function save(e) {
     e.preventDefault();
     if (busy) return;
+    setSaveError("");
     setBusy(true);
     try {
       const image = file ? (await uploadImage(file)).url : form.image;
@@ -59,7 +62,7 @@ export default function Products({ catalog = false }) {
       setForm(null);
       await refresh();
     } catch (e) {
-      toast.error(e.message);
+      setSaveError(e.message);
     } finally {
       setBusy(false);
     }
@@ -228,6 +231,14 @@ export default function Products({ catalog = false }) {
           }}
         >
           <form onSubmit={save} className="space-y-4">
+            {saveError && (
+              <p
+                role="alert"
+                className="rounded-xl bg-red-50 p-3 text-sm text-red-800"
+              >
+                {saveError}
+              </p>
+            )}
             {[
               ["name", "Product name", "text"],
               ["price", "Price (EGP)", "number"],
