@@ -1,162 +1,102 @@
-import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useRecords, money, date } from "../lib/admin";
+import { useState } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import { api } from "../lib/api";
-
+import { PageHeader, State, Status } from "../components/AdminUI";
 export default function OrderDetails() {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const [order, setOrder] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [status, setStatus] = useState("");
-  const [updating, setUpdating] = useState(false);
-
-  const fetchOrder = async () => {
-    const { data, error } = await api
-      .from("orders")
-      .select("*")
-      .eq("id", id)
-      .single();
-
-    if (!error) {
-      setOrder(data);
-      setStatus(data.status);
-    } else alert(error.message);
-
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    fetchOrder();
-  }, [id]);
-
-  const updateStatus = async (newStatus) => {
-    setUpdating(true);
-    const { error } = await api
-      .from("orders")
-      .update({ status: newStatus })
-      .eq("id", id);
-
-    if (!error) {
-      setStatus(newStatus);
-      setTimeout(() => setUpdating(false), 400);
-    } else {
-      alert(error.message);
-      alert("Failed to update status");
-      setUpdating(false);
+  const { id } = useParams(),
+    navigate = useNavigate();
+  const { data, loading, error, refresh } = useRecords("orders");
+  const [busy, setBusy] = useState(false);
+  const order = data.find((o) => o.id === id);
+  async function update(status) {
+    setBusy(true);
+    const { error } = await api.from("orders").update({ status }).eq("id", id);
+    if (error) toast.error(error.message);
+    else {
+      toast.success("Order updated");
+      await refresh();
     }
-  };
-
-  const deleteOrder = async () => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this order?",
-    );
-    if (!confirmDelete) return;
-
+    setBusy(false);
+  }
+  async function remove() {
+    if (!window.confirm("Delete this order?")) return;
+    setBusy(true);
     const { error } = await api.from("orders").delete().eq("id", id);
-
-    if (!error) {
-      alert("Order deleted!");
-      navigate("/orders");
-    } else {
-      alert(error.message);
-      alert("Failed to delete order");
-    }
-  };
-
-  if (loading) {
-    return <div className="p-6 text-white">Loading order details...</div>;
+    if (error) {
+      toast.error(error.message);
+      setBusy(false);
+    } else navigate("/orders");
   }
-
-  if (!order) {
-    return (
-      <div className="p-6 text-white">
-        Order not found
-        <button
-          className="ml-4 bg-blue-600 px-4 py-2 rounded hover:bg-blue-700 transition transform hover:scale-105"
-          onClick={() => navigate("/orders")}
-        >
-          Back to Orders
-        </button>
-      </div>
-    );
-  }
-
   return (
-    <div className="p-6 animate-slide-in">
-      <h2 className="text-2xl font-bold mb-4">Order Details</h2>
-
-      <div className="bg-gray-800 p-6 rounded-lg shadow-lg space-y-4 transition-transform duration-500 ease-in-out">
-        <p>
-          <span className="font-semibold">Order ID:</span> {order.id}
-        </p>
-
-        <p>
-          <span className="font-semibold">Status:</span>{" "}
-          <div className="relative inline-block">
-            <select
-              value={status}
-              onChange={(e) => updateStatus(e.target.value)}
-              disabled={updating}
-              className={`bg-gray-700 text-white px-3 py-1 rounded transition-all duration-300 ease-in-out ${
-                updating ? "opacity-50 animate-fade" : "opacity-100"
-              }`}
-            >
-              <option value="pending">Pending</option>
-              <option value="completed">Completed</option>
-              <option value="canceled">Cancelled</option>
-            </select>
-            {updating && (
-              <div className="absolute top-0 left-0 w-full h-full bg-yellow-400 bg-opacity-30 rounded pointer-events-none animate-pulse"></div>
-            )}
-          </div>
-        </p>
-
-        <p>
-          <span className="font-semibold">Total Price:</span> $
-          {order.total_price}
-        </p>
-
-        <h3 className="text-xl font-semibold mt-4">Products:</h3>
-        <ul className="space-y-3">
-          {order.products.map((item, index) => (
-            <li
-              key={index}
-              className="flex items-center gap-4 bg-gray-700 p-3 rounded-lg transform transition duration-300 hover:scale-105 hover:bg-gray-600"
-            >
-              {item.image && (
-                <img
-                  src={item.image}
-                  alt={item.title}
-                  className="w-16 h-16 object-cover rounded transition-transform duration-300 hover:scale-110"
-                />
-              )}
-              <div className="flex-1">
-                <p className="font-semibold">{item.title}</p>
-                <p>Category: {item.category}</p>
-                <p>
-                  Quantity: {item.quantity} x ${item.price}
-                </p>
+    <>
+      <PageHeader title="Order details" subtitle="Every item, every detail.">
+        <Link className="btn-soft" to="/orders">
+          Back to Orders
+        </Link>
+      </PageHeader>
+      <State loading={loading} error={error} onRetry={refresh} />
+      {!loading && !error && !order && (
+        <p className="panel">Order not found.</p>
+      )}
+      {!loading && !error && order && (
+        <div className="grid lg:grid-cols-[1.5fr_1fr] gap-6">
+          <section className="panel">
+            <h2 className="font-serif text-xl mb-5">Items in this order</h2>
+            {order.products.map((p, i) => (
+              <div key={i} className="flex gap-4 border-t py-5">
+                {p.image && (
+                  <img
+                    src={p.image}
+                    alt=""
+                    className="w-14 h-14 rounded-lg object-contain shrink-0"
+                  />
+                )}
+                <div className="min-w-0">
+                  <h3 className="font-semibold">{p.title}</h3>
+                  <p className="muted mt-1">{p.category}</p>
+                  <p className="text-sm mt-2">
+                    {p.quantity} × {money(p.price)}
+                  </p>
+                </div>
               </div>
-            </li>
-          ))}
-        </ul>
-
-        <div className="flex gap-3 mt-6">
-          <button
-            onClick={() => navigate("/orders")}
-            className="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-lg transition transform hover:scale-105"
-          >
-            Back to Orders
-          </button>
-
-          <button
-            onClick={deleteOrder}
-            className="bg-red-600 hover:bg-red-700 px-6 py-2 rounded-lg transition transform hover:scale-105"
-          >
-            Delete Order
-          </button>
+            ))}
+          </section>
+          <section className="panel h-fit">
+            <Status value={order.status} />
+            <p className="break-all text-sm mt-5">{order.id}</p>
+            <p className="muted mt-2">Placed {date(order.created_at)}</p>
+            <p className="text-2xl font-semibold my-6">
+              {money(order.total_price)}
+            </p>
+            <label className="text-sm">
+              Order status
+              <select
+                className="field mt-2"
+                value={order.status}
+                disabled={busy || order.status !== "pending"}
+                onChange={(e) => update(e.target.value)}
+              >
+                <option value="pending">Pending</option>
+                <option value="completed">Completed</option>
+                <option value="canceled">Canceled</option>
+              </select>
+            </label>
+            <p className="muted text-xs my-4">
+              Completed and canceled orders are final. Canceling restores the
+              stock.
+            </p>
+            <button
+              className="btn-soft text-red-700"
+              disabled={busy || order.status === "pending"}
+              onClick={remove}
+            >
+              Delete Order
+            </button>
+          </section>
         </div>
-      </div>
-    </div>
+      )}
+    </>
   );
 }
