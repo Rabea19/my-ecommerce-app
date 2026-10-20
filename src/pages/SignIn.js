@@ -1,85 +1,92 @@
-import * as React from "react";
-import { api } from "../lib/api";
-import { useDispatch } from "react-redux";
-import { login } from "../store/authSlice";
+import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import {
-  Box,
-  Button,
-  TextField,
-  Typography,
-  Container,
-  Paper,
-  Divider,
-  Stack,
-} from "@mui/material";
-
+import { useDispatch } from "react-redux";
+import { api } from "../lib/api";
+import { login } from "../store/authSlice";
 export default function SignIn() {
+  const [register, setRegister] = useState(false),
+    [busy, setBusy] = useState(false),
+    [error, setError] = useState("");
   const dispatch = useDispatch();
-  const [register, setRegister] = React.useState(false);
-  const [busy, setBusy] = React.useState(false);
-  const [error, setError] = React.useState("");
   const navigate = useNavigate();
   const location = useLocation();
-
-  const from = location.state?.from?.pathname || "/checkout";
-
-  const handleSubmit = async (e) => {
-    e.preventDefault(); if (busy) return;
-    const form = new FormData(e.currentTarget); setBusy(true); setError("");
-    const {data, error} = await api.auth[register ? "signUp" : "signInWithPassword"]({email:form.get("email"), password:form.get("password")});
-    setBusy(false); if (error) { setError(error.message); return; }
-    dispatch(login(data.user)); navigate(from, {replace:true});
-  };
-  const handleGoogleLogin = () => setError("Google sign-in is not configured. Please use email and password.");
-  const handleFacebookLogin = () => setError("Facebook sign-in is not configured. Please use email and password.");
-
+  async function submit(e) {
+    e.preventDefault();
+    if (busy) return;
+    const form = new FormData(e.currentTarget);
+    setBusy(true);
+    setError("");
+    const { data, error } = await api.auth[
+      register ? "signUp" : "signInWithPassword"
+    ]({ email: form.get("email"), password: form.get("password") });
+    setBusy(false);
+    if (error) {
+      setError(error.message);
+      return;
+    }
+    dispatch(login(data.user));
+    navigate(location.state?.from?.pathname || "/orders", { replace: true });
+  }
   return (
-    <Container maxWidth="sm" sx={{ mt: 8 }}>
-      <Paper elevation={4} sx={{ p: 4 }}>
-        <Typography variant="h4" align="center" gutterBottom>
-          {register ? "Create Account" : "Sign In"}
-        </Typography>
-
-        <Box component="form" onSubmit={handleSubmit}>
-          <TextField
-            label="Email"
-            name="email"
-            type="email"
-            fullWidth
-            required
-            margin="normal"
-          />
-
-          <TextField
-            label="Password"
-            name="password"
-            type="password"
-            fullWidth
-            required
-            margin="normal"
-          />
-
-          <Button disabled={busy} type="submit" variant="contained" fullWidth sx={{ mt: 3 }}>
-            {register ? "Create Account" : "Sign In"}
-          </Button>
-        </Box>
-
-        {error && <Typography role="alert" color="error" sx={{mt:2}}>{error}</Typography>}
-        <Button fullWidth onClick={() => { setRegister(!register); setError(""); }}>
-          {register ? "Already registered? Sign In" : "Create an account"}
-        </Button>
-        <Divider sx={{ my: 3 }}>or</Divider>
-
-        <Stack spacing={2}>
-          <Button variant="outlined" fullWidth onClick={handleGoogleLogin}>
-            Sign in with Google
-          </Button>
-          <Button variant="outlined" fullWidth onClick={handleFacebookLogin}>
-            Sign in with Facebook
-          </Button>
-        </Stack>
-      </Paper>
-    </Container>
+    <main className="wrap max-w-lg py-14">
+      <div className="panel">
+        <p className="eyebrow mb-4">Your personal corner</p>
+        <h1 className="font-display text-4xl">
+          {register ? "Join the collection." : "Lovely to see you."}
+        </h1>
+        <p className="mb-7 mt-4 text-sm text-ink/60">
+          {register
+            ? "Create an account to place and follow your orders."
+            : "Sign in to continue your shopping journey."}
+        </p>
+        <form onSubmit={submit} className="space-y-5">
+          <label className="block text-sm">
+            Email address
+            <input
+              className="field mt-2"
+              name="email"
+              type="email"
+              autoComplete="email"
+              required
+            />
+          </label>
+          <label className="block text-sm">
+            Password
+            <input
+              className="field mt-2"
+              name="password"
+              type="password"
+              autoComplete={register ? "new-password" : "current-password"}
+              required
+              minLength={10}
+              maxLength={128}
+            />
+          </label>
+          {register && (
+            <p className="text-xs text-ink/60">Use 10–128 characters.</p>
+          )}
+          {error && (
+            <p role="alert" className="text-sm text-red-700">
+              {error}
+            </p>
+          )}
+          <button disabled={busy} className="btn w-full">
+            {busy ? "Please wait…" : register ? "Create account" : "Sign in"}
+          </button>
+        </form>
+        <button
+          disabled={busy}
+          className="mt-6 w-full text-sm text-plum underline"
+          onClick={() => {
+            setRegister(!register);
+            setError("");
+          }}
+        >
+          {register
+            ? "Already registered? Sign in"
+            : "New here? Create an account"}
+        </button>
+      </div>
+    </main>
   );
 }

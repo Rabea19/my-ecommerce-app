@@ -1,94 +1,99 @@
-import React, { useEffect, useState } from "react";
-import { Box, Button, Grid, Typography } from "@mui/material";
-import ProductCard from "../components/ProductCard";
-import { api } from "../lib/api";
-import { useSearchParams } from "react-router-dom";
-import "./Collection.css"; // علشان الأزرار القديمة زي crochet-btn
-
+import { useSearchParams, Link } from "react-router-dom";
+import useProducts from "../hooks/useProducts";
+import ProductGrid from "../components/ProductGrid";
+import { filterProducts, categoryKey, categoryName } from "../lib/catalog";
 export default function Collection() {
-  const [products, setProducts] = useState([]);
-  const [params] = useSearchParams();
-  const [selectedCategory, setSelectedCategory] = useState(params.get("category") || "all");
-  useEffect(() => { setSelectedCategory(params.get("category") || "all"); }, [params]);
-  const [search] = useState("");
-
-  // الفئات زي القديمة
+  const state = useProducts();
+  const [params, setParams] = useSearchParams();
+  const category = params.get("category") || "all",
+    query = params.get("q") || "",
+    sort = params.get("sort") || "featured",
+    available = params.get("available") === "true";
+  const update = (key, value) => {
+    const next = new URLSearchParams(params);
+    if (value) next.set(key, value);
+    else next.delete(key);
+    setParams(next, { replace: true });
+  };
   const categories = [
-    "all",
-    "mobiles",
-    "computers",
-    "crochet",
-    "home",
-    "clothes",
-    "furniture",
-  ];
-
-  // جلب البيانات من API
-  useEffect(() => {
-    const fetchProducts = async () => {
-      const { data, error } = await api.from("products").select("*");
-      if (!error) setProducts(data);
-    };
-    fetchProducts();
-  }, []);
-
-  // فلترة المنتجات
-  const filteredProducts = products.filter((p) => {
-    const matchCategory =
-      selectedCategory === "all" ||
-      (selectedCategory === "computers" &&
-        p.category.toLowerCase() === "laptops") || // إذا حبيت تحول لاب توب لـ computers
-      p.category.toLowerCase() === selectedCategory;
-    const matchSearch = p.name.toLowerCase().includes(search.toLowerCase());
-    return matchCategory && matchSearch;
+    ...new Set(state.products.map((p) => categoryKey(p.category))),
+  ].filter(Boolean);
+  const filtered = filterProducts(state.products, {
+    query,
+    category,
+    sort,
+    available,
   });
-
   return (
-    <Box sx={{ p: { xs: 2, sm: 3 } }}>
-      <Typography variant="h4" gutterBottom align="center">
-        Collection
-      </Typography>
-
-      {/* أزرار الكاتيجوري */}
-      <Box
-        sx={{
-          mb: 4,
-          display: "flex",
-          gap: 2,
-          flexWrap: "wrap",
-          justifyContent: "center",
-        }}
-      >
-        {categories.map((cat) => (
-          <Button
-            key={cat}
-            variant={selectedCategory === cat ? "contained" : "outlined"}
-            color="primary"
-            onClick={() => setSelectedCategory(cat)}
-            sx={{
-              textTransform: "capitalize",
-              minWidth: cat === "crochet" ? 160 : 120,
-            }}
-            className={cat === "crochet" ? "crochet-btn" : ""}
+    <main className="wrap py-10">
+      <p className="mb-8 text-xs text-ink/60">
+        <Link to="/">Home</Link> / Collections
+      </p>
+      <p className="eyebrow mb-3">Considered choices, everyday</p>
+      <h1 className="heading">
+        {category === "all" ? "All collections" : categoryName(category)}
+      </h1>
+      <p className="mb-8 mt-4 text-sm text-ink/60">
+        Find the pieces that feel like you.
+      </p>
+      <div className="mb-8 flex flex-wrap gap-2">
+        {["all", ...categories].map((c) => (
+          <button
+            key={c}
+            onClick={() => update("category", c)}
+            aria-pressed={category === c}
+            className={category === c ? "btn" : "btn-outline bg-white"}
           >
-            {cat === "crochet" ? "Crochet by Hager" : cat}
-          </Button>
+            {c === "all" ? "All products" : categoryName(c)}
+          </button>
         ))}
-      </Box>
-
-      {/* عرض المنتجات */}
-      <Grid container spacing={3} justifyContent="center">
-        {filteredProducts.map((product) => (
-          <Grid item key={product.id} xs={12} sm={6} md={4} lg={3}>
-            <ProductCard product={product} />
-          </Grid>
-        ))}
-        {filteredProducts.length === 0 && (
-          <Typography variant="body1" align="center">
-            No products found
-          </Typography>
+      </div>
+      <div className="mb-9 grid items-end gap-4 rounded-2xl bg-lilac p-5 md:grid-cols-[1fr_auto_auto]">
+        <label className="text-xs font-semibold">
+          Search collection
+          <input
+            className="field mt-2"
+            value={query}
+            onChange={(e) => update("q", e.target.value)}
+            placeholder="Name or category"
+          />
+        </label>
+        <label className="text-xs font-semibold">
+          Sort by
+          <select
+            className="field mt-2"
+            value={sort}
+            onChange={(e) => update("sort", e.target.value)}
+          >
+            <option value="featured">Featured</option>
+            <option value="price-low">Price: low to high</option>
+            <option value="price-high">Price: high to low</option>
+            <option value="name">Name: A–Z</option>
+          </select>
+        </label>
+        <label className="flex min-h-12 items-center gap-3 text-sm">
+          <input
+            type="checkbox"
+            checked={available}
+            onChange={(e) =>
+              update("available", e.target.checked ? "true" : "")
+            }
+            className="h-4 w-4 accent-plum"
+          />
+          In stock only
+        </label>
+      </div>
+      <div className="mb-6 flex justify-between text-sm">
+        <p aria-live="polite">
+          {state.loading ? "Loading…" : `${filtered.length} products`}
+        </p>
+        {params.size > 0 && (
+          <button onClick={() => setParams({})} className="text-plum underline">
+            Clear filters
+          </button>
         )}
-      </Grid>
-    </Box>
+      </div>
+      <ProductGrid {...state} products={filtered} />
+    </main>
   );
 }

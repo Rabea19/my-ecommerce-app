@@ -8,14 +8,15 @@
     "test": "node --test test/*.test.js"
   },
   "dependencies": {
+    "cookie-parser": "^1.4.7",
     "express": "^5.1.0",
-    "mongoose": "^8.19.0",
-    "helmet": "^8.1.0",
     "express-rate-limit": "^8.1.0",
-    "cookie-parser": "^1.4.7"
+    "helmet": "^8.1.0",
+    "mongoose": "^8.19.0"
   },
   "devDependencies": {
-    "supertest": "^7.1.0",
-    "mongodb-memory-server": "^10.2.0"
+    "@playwright/test": "^1.64.1",
+    "mongodb-memory-server": "^10.2.0",
+    "supertest": "^7.1.0"
   }
 }
