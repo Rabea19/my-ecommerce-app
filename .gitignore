@@ -31,3 +31,5 @@ coverage/
 
 dist/
 .vercel/
+server/playwright-report/
+server/test-results/

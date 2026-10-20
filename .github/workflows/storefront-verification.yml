@@ -25,3 +25,15 @@ jobs:
           CI: true
       - run: npm --prefix server test
       - run: npm run build:vercel
+      - run: npx playwright install --with-deps chromium
+        working-directory: server
+      - run: npx playwright test
+        working-directory: server
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: browser-verification
+          path: |
+            server/playwright-report
+            server/test-results
+          retention-days: 7
