@@ -2,6 +2,8 @@ import { useDispatch } from "react-redux";
 import { login, logout } from "./store/authSlice";
 import { api } from "./lib/api";
 import Footer from "./components/Footer";
+import Profile from "./pages/Profile";
+import Contact from "./pages/Contact";
 import Orders from "./pages/Orders";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -63,6 +65,8 @@ export default function App() {
 
       {/* المسارات */}
       <Routes>
+        <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+        <Route path="/contact" element={<Contact />} />
         <Route path="/" element={<Home />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/signin" element={<SignIn />} />
