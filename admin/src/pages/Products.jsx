@@ -1,5 +1,5 @@
 import { useRecords, money } from "../lib/admin";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Package, Plus } from "lucide-react";
 import toast from "react-hot-toast";
@@ -30,8 +30,22 @@ export default function Products({ catalog = false }) {
       ...data.map((p) => p.category).filter(Boolean),
     ]),
   ];
+  useEffect(() => {
+    if (params.get("new") === "1") {
+      setForm({ ...blank });
+      const next = new URLSearchParams(params); next.delete("new");
+      setParams(next, { replace: true });
+    } else if (params.get("edit") && !loading) {
+      const product = data.find(p => p.id === params.get("edit"));
+      if (product) setForm({ ...product });
+      const next = new URLSearchParams(params); next.delete("edit");
+      setParams(next, { replace: true });
+    }
+  }, [params, setParams, data, loading]);
+  const lowOnly = params.get("stock") === "low";
   const filtered = data.filter(
     (p) =>
+      (!lowOnly || p.stock < 5) &&
       (category === "All" || p.category === category) &&
       p.name.toLowerCase().includes(q.toLowerCase()),
   );
@@ -116,9 +130,11 @@ export default function Products({ catalog = false }) {
           className="field flex-1 min-w-[160px]"
           value={q}
           onChange={(e) =>
-            setParams(e.target.value ? { q: e.target.value } : {}, {
-              replace: true,
-            })
+            setParams(previous => {
+              const next = new URLSearchParams(previous);
+              if (e.target.value) next.set("q", e.target.value); else next.delete("q");
+              return next;
+            }, { replace: true })
           }
         />
         <select
@@ -136,6 +152,7 @@ export default function Products({ catalog = false }) {
           {filtered.length} products · Prices in EGP
         </p>
       </div>
+      {lowOnly && <div className="flex items-center gap-3 mb-4"><span className="muted">Showing low stock only</span><button className="btn-soft" onClick={() => setParams(previous => { const next = new URLSearchParams(previous); next.delete("stock"); return next; })}>Show all stock</button></div>}
       <State
         loading={loading}
         error={error}
