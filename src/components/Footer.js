@@ -1,37 +1,19 @@
-import { Link } from "react-router-dom";
+import { Link } from 'react-router-dom';
+import SocialLinks from './SocialLinks';
+import './Footer.css';
 export default function Footer() {
-  return (
-    <footer className="mt-20 border-t border-plum/10 bg-lilac">
-      <div className="wrap grid gap-10 py-14 md:grid-cols-3">
-        <div>
-          <Link to="/" className="font-display text-3xl text-plum">
-            simple market.
-          </Link>
-          <p className="mt-4 max-w-xs text-sm leading-7 text-ink/65">
-            Discover the pieces that fit your life. From everyday essentials to
-            something a little special.
-          </p>
-        </div>
-        <div>
-          <h2 className="eyebrow mb-5">Explore</h2>
-          <div className="flex flex-col gap-3 text-sm">
-            <Link to="/collection">All collections</Link>
-            <Link to="/collection?category=home">For your home</Link>
-            <Link to="/collection?category=crochet">Crochet by Hager</Link>
-          </div>
-        </div>
-        <div>
-          <h2 className="eyebrow mb-5">Your market</h2>
-          <div className="flex flex-col gap-3 text-sm">
-            <Link to="/cart">Shopping bag</Link>
-            <Link to="/orders">Your orders</Link>
-            <Link to="/signin">Your account</Link>
-          </div>
-        </div>
-      </div>
-      <div className="wrap border-t border-plum/10 py-5 text-xs text-ink/60">
-        © {new Date().getFullYear()} Simple Market · All prices in EGP
-      </div>
-    </footer>
-  );
+ return <footer className="market-footer">
+  <div className="wrap">
+   <div className="market-footer-grid">
+    <section className="market-footer-brand" aria-label="About Simple Market">
+     <Link to="/" className="market-footer-logo" aria-label="Simple Market home"><span className="market-footer-monogram" aria-hidden="true">m.</span><span>simple market<span className="market-footer-tagline">THE EVERYDAY COLLECTION</span></span></Link>
+     <p>Discover the pieces that fit your life. From technology and home favourites to personal style and handmade finds, explore the everyday collection at Simple Market.</p>
+     <div className="market-footer-follow"><h2>Follow us</h2><SocialLinks /></div>
+    </section>
+    <nav aria-label="Footer collections"><h2>Explore<br/>the collection</h2><Link to="/collection">All collections</Link><Link to="/collection?category=mobiles">Mobiles</Link><Link to="/collection?category=computers">Computers</Link><Link to="/collection?category=home">For your home</Link><Link to="/collection?category=clothes">Clothing</Link><Link to="/collection?category=furniture">Furniture</Link><Link to="/collection?category=crochet">Crochet by Hager</Link></nav>
+    <nav aria-label="Customer services"><h2>Customer<br/>services</h2><Link to="/profile">My account</Link><Link to="/orders">My orders</Link><Link to="/cart">Shopping bag</Link><Link to="/contact">Contact us</Link></nav>
+   </div>
+   <div className="market-footer-bottom"><p>© {new Date().getFullYear()} Simple Market. All rights reserved.</p><p>All prices in EGP</p></div>
+  </div>
+ </footer>;
 }
