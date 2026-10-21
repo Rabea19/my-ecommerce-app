@@ -17,15 +17,10 @@ const links = [
 export default function Sidebar({ onNavigate }) {
   return (
     <div className="flex flex-col h-full">
-      <a
-        href="/admin/"
-        className="text-3xl font-serif tracking-tight text-[#50345f] mb-2"
-      >
-        market<span className="text-[#a286ad]">.</span>
+      <a href="/admin/" className="flex items-center gap-3 text-[#50345f] mb-10" aria-label="Simple Market administration">
+        <span className="flex items-center justify-center shrink-0 w-11 h-11 rounded-full border border-[#50345f] font-serif italic text-3xl">m.</span>
+        <span className="font-serif text-xl tracking-tight">simple market<span className="block font-sans text-[9px] tracking-[.22em] mt-1">THE STORE STUDIO</span></span>
       </a>
-      <p className="text-[10px] uppercase tracking-[.24em] muted mb-10">
-        The store studio
-      </p>
       <p className="muted text-xs uppercase tracking-widest mb-4">Workspace</p>
       <nav aria-label="Admin navigation" className="space-y-2">
         {links.map(([to, label, Icon]) => (
@@ -43,17 +38,7 @@ export default function Sidebar({ onNavigate }) {
           </NavLink>
         ))}
       </nav>
-      <div className="mt-auto pt-12">
-        <div className="rounded-2xl bg-[#f4eef6] p-4">
-          <p className="font-serif text-lg">Your store, beautifully managed.</p>
-          <a
-            href="/"
-            className="mt-4 flex items-center gap-2 text-sm text-[#50345f]"
-          >
-            Visit storefront <ArrowUpRight size={16} />
-          </a>
-        </div>
-      </div>
+      <div className="mt-auto pt-12"><a href="/" className="flex items-center gap-2 text-sm text-[#50345f]">Visit storefront <ArrowUpRight size={16}/></a></div>
     </div>
   );
 }
