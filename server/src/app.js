@@ -23,6 +23,7 @@ export function createApp() {
  app.use('/api', (req,res,next) => { const origin = req.get('origin'); const allowed = (process.env.ALLOWED_ORIGINS || 'http://localhost:3000,http://localhost:5173,http://localhost:4000').split(',').map(value => value.trim()).filter(Boolean); for (const host of [process.env.VERCEL_URL, process.env.VERCEL_PROJECT_PRODUCTION_URL]) { if (host) allowed.push('https://' + host); } if (origin && !allowed.includes(origin)) return res.status(403).json({ error: 'Origin not allowed' }); next(); });
  app.use('/api', rateLimit({ windowMs: 60000, limit: 300, standardHeaders: 'draft-8', legacyHeaders: false }));
  app.get('/api/health', (_req,res) => res.status(mongoose.connection.readyState === 1 ? 200 : 503).json({ status: mongoose.connection.readyState === 1 ? 'ok' : 'unavailable' }));
+ app.use(['/api/auth', '/api/orders', '/api/users'], (_req,res,next) => { res.set('Cache-Control','no-store'); next(); });
  app.use('/api', async (req,_res,next) => { const token = req.cookies.market_session; if (typeof token === 'string' && token.length === 64) { const session = await Session.findOne({ tokenHash: digest(token), expires: { $gt: new Date() } }).populate('user'); req.user = session?.user; } next(); });
  const auth = (req,_res,next) => { if (!req.user) fail(401,'Please sign in'); next(); };
  const admin = (req,_res,next) => { if (req.user?.role !== 'admin') fail(403,'Administrator access required'); next(); };
@@ -38,6 +39,12 @@ export function createApp() {
  async function sessionFor(user,res) { const token = randomBytes(32).toString('hex'); const expires = new Date(Date.now()+7*86400000); await Session.create({ tokenHash: digest(token), user: user._id, expires }); res.cookie('market_session',token,{ ...cookie, expires }); res.json({ user: publicUser(user) }); }
  app.post('/api/auth/register', loginLimiter, async (req,res) => { const { email, password } = credentials(req.body); const user = await User.create({ email, passwordHash: await hashPassword(password), name: email.split('@')[0], role: 'customer' }); await sessionFor(user,res); });
  app.post('/api/auth/login', loginLimiter, async (req,res) => { const { email, password } = credentials(req.body); const user = await User.findOne({ email }).select('+passwordHash'); if (!user || !await verifyPassword(password,user.passwordHash)) fail(401,'Invalid email or password'); if (req.body.admin && user.role !== 'admin') fail(403,'Administrator access required'); await sessionFor(user,res); });
+ app.patch('/api/auth/profile', auth, async (req,res) => {
+   if (!req.body || Object.keys(req.body).some(key => key !== 'name') || typeof req.body.name !== 'string' || !req.body.name.trim() || req.body.name.trim().length > 100) fail(400,'Provide a name of 1–100 characters');
+   req.user.name = req.body.name.trim();
+   await req.user.save();
+   res.json({user:publicUser(req.user)});
+ });
  app.get('/api/auth/session', (req,res) => res.json({ user: req.user ? publicUser(req.user) : null }));
  app.post('/api/auth/logout', async (req,res) => { if (req.cookies.market_session) await Session.deleteOne({ tokenHash: digest(req.cookies.market_session) }); res.clearCookie('market_session',cookie).json({ ok: true }); });
  app.get('/api/products', async (_req,res) => res.json(await Product.find({ deleted: false }).sort({ created_at: -1 })));
