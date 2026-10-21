@@ -18,7 +18,7 @@ test("admin manages products and navigates every dashboard page", async ({
     .fill("TestOnlyPassword123");
   await page.getByRole("button", { name: "Login", exact: true }).click();
   await expect(
-    page.getByRole("heading", { name: "A little overview." }),
+    page.getByRole("heading", { name: "Store overview" }),
   ).toBeVisible();
   await expect(
     page.getByText("Completed revenue", { exact: true }),
