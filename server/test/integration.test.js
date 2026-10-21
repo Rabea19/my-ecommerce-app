@@ -50,3 +50,15 @@ test('concurrent checkouts cannot oversell and multi-item failure rolls back',as
  await customer.post('/api/orders').set('Idempotency-Key','rollback-test-00001').send({products:[{id:q.id,quantity:1},{id:p.id,quantity:1}]}).expect(409);
  assert.equal((await Product.findById(q.id)).stock,2);
 });
+
+test('profile changes require a session and cannot escalate permissions', async()=>{
+ await request(app).patch('/api/auth/profile').send({name:'Guest'}).expect(401);
+ await customer.post('/api/auth/login').send({email:'buyer@example.com',password:'SecurePassword123'}).expect(200);
+ await customer.patch('/api/auth/profile').send({name:'Buyer',role:'admin'}).expect(400);
+ await customer.patch('/api/auth/profile').send({name:'Buyer',email:'admin@example.com'}).expect(400);
+ await customer.patch('/api/auth/profile').send({name:'   '}).expect(400);
+ const result=await customer.patch('/api/auth/profile').send({name:'Updated Buyer'}).expect(200);
+ assert.equal(result.body.user.name,'Updated Buyer');assert.equal(result.body.user.role,'customer');
+ assert.equal((await customer.get('/api/auth/session')).body.user.name,'Updated Buyer');
+ await customer.get('/api/users').expect(403);
+});
