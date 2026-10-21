@@ -32,6 +32,8 @@ export default function DrawerMenu({ open, onClose }) {
           ["All collections", "/collection"],
           ["Shopping bag", "/cart"],
           ["My orders", "/orders"],
+          ["My account", "/profile"],
+          ["Contact us", "/contact"],
         ].map(([label, path]) => (
           <Link key={path} to={path} onClick={onClose}>
             {label}
