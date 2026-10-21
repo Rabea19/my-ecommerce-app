@@ -55,7 +55,7 @@ export default function Navbar({ onMenu }) {
         disabled={busy}
         onClick={logout}
       >
-        <LogOut size={18} />
+        <LogOut size={18} /><span className="hidden sm:inline">Sign out</span>
       </button>
     </header>
   );
