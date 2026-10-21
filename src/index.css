@@ -1,13 +1,54 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@layer base {
+  body {
+    @apply bg-cream text-ink antialiased;
+    font-family: Arial, sans-serif;
+  }
+  button,
+  a,
+  input,
+  select {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plum focus-visible:ring-offset-4;
+  }
+  button {
+    @apply disabled:cursor-not-allowed disabled:opacity-50;
+  }
+}
+@layer components {
+  .wrap {
+    @apply mx-auto w-full max-w-7xl px-5 sm:px-8;
+  }
+  .btn {
+    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-plum px-6 py-3 text-sm font-semibold text-white transition hover:bg-ink;
+  }
+  .btn-outline {
+    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-plum/25 px-6 py-3 text-sm font-semibold text-plum transition hover:bg-lilac;
+  }
+  .field {
+    @apply w-full rounded-xl border border-plum/20 bg-white px-4 py-3 text-base;
+  }
+  .eyebrow {
+    @apply text-xs font-bold uppercase tracking-[0.22em] text-plum;
+  }
+  .heading {
+    @apply font-display text-4xl leading-tight sm:text-5xl;
+  }
+  .panel {
+    @apply rounded-2xl border border-plum/10 bg-white p-6 sm:p-8;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
-}
+@keyframes announcement-enter { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+.announcement-copy { animation: announcement-enter 350ms ease-out; }
+@media (prefers-reduced-motion: reduce) { .announcement-copy { animation: none; } }

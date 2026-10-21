@@ -1,6 +1,12 @@
-import "../src/App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { login, logout } from "./store/authSlice";
+import { api } from "./lib/api";
+import Footer from "./components/Footer";
+import Profile from "./pages/Profile";
+import Contact from "./pages/Contact";
+import Orders from "./pages/Orders";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
 
 import Home from "./pages/Home";
 import Cart from "./pages/Cart";
@@ -13,27 +19,55 @@ import DrawerMenu from "./components/DrawerMenu";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Collection from "./pages/Collection";
 
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+}
+
 export default function App() {
+  const dispatch = useDispatch();
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    let active = true;
+    api.auth.getSession().then(({ data }) => {
+      if (active) {
+        dispatch(data.session ? login(data.session.user) : logout());
+        setReady(true);
+      }
+    });
+    const { data: listener } = api.auth.onAuthStateChange((_event, session) =>
+      dispatch(session ? login(session.user) : logout()),
+    );
+    return () => {
+      active = false;
+      listener.subscription.unsubscribe();
+    };
+  }, [dispatch]);
   // حالة فتح الدروور
   const [drawerOpen, setDrawerOpen] = useState(false);
-  // حالة البحث في المنتجات
-  const [searchTerm, setSearchTerm] = useState("");
 
+  if (!ready)
+    return (
+      <p role="status" className="wrap py-20 text-center text-plum">
+        Opening Simple Market…
+      </p>
+    );
   return (
     <BrowserRouter>
-      {/* Navbar بيستقبل البحث وفتح الدروور */}
-      <Navbar
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        onMenuClick={() => setDrawerOpen(true)}
-      />
+      <ScrollToTop />
+      <Navbar onMenuClick={() => setDrawerOpen(true)} />
 
       {/* DrawerMenu */}
       <DrawerMenu open={drawerOpen} onClose={() => setDrawerOpen(false)} />
 
       {/* المسارات */}
       <Routes>
-        <Route path="/" element={<Home searchTerm={searchTerm} />} />
+        <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/" element={<Home />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/product/:id" element={<ProductDetails />} />
@@ -48,7 +82,27 @@ export default function App() {
           }
         />
         <Route path="/collection" element={<Collection />} />
+        <Route
+          path="/orders"
+          element={
+            <ProtectedRoute>
+              <Orders />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="*"
+          element={
+            <div className="wrap py-20">
+              <h1 className="heading">Page not found</h1>
+              <a className="btn mt-6" href="/">
+                Back to home
+              </a>
+            </div>
+          }
+        />
       </Routes>
+      <Footer />
     </BrowserRouter>
   );
 }

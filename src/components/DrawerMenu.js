@@ -1,147 +1,67 @@
-import * as React from "react";
-import {
-  Drawer,
-  Box,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemText,
-  Collapse,
-  Divider,
-} from "@mui/material";
-import { ExpandLess, ExpandMore } from "@mui/icons-material";
-import { useNavigate } from "react-router-dom";
-import { styled } from "@mui/material/styles";
-import { useDispatch, useSelector } from "react-redux";
-import { logout } from "../store/authSlice";
-
-const StyledDrawer = styled(Drawer)(({ theme }) => ({
-  "& .MuiDrawer-paper": {
-    width: 260,
-    backgroundColor: theme.palette.background.paper,
-    boxShadow: theme.shadows[5],
-    borderRadius: "0 16px 16px 0",
-    transition: theme.transitions.create(["transform", "opacity"], {
-      easing: theme.transitions.easing.easeInOut, // 👈 هنا بدل sharp
-      duration: theme.transitions.duration.standard,
-    }),
-  },
-}));
-
+import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { api } from "../lib/api";
+import Icon from "./Icon";
 export default function DrawerMenu({ open, onClose }) {
-  const navigate = useNavigate();
-  const [collectionOpen, setCollectionOpen] = React.useState(false);
-  const dispatch = useDispatch();
-  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
-
-  const categories = [
-    { name: "Mobiles", value: "mobiles" },
-    { name: "Computers", value: "computers" },
-    { name: "Home Appliances", value: "home" },
-    { name: "Clothes", value: "clothes" },
-    { name: "Furniture", value: "furniture" },
-  ];
-
-  const handleCollectionClick = () => {
-    setCollectionOpen(!collectionOpen);
-  };
-
-  const handleCategoryClick = (category) => {
-    navigate(`/collection?category=${category}`);
-    onClose(); // يقفل الدروور لما تضغط على كاتيجوري
-  };
-
-  const handleItemClick = (path) => {
-    navigate(path);
-    onClose(); // يقفل الدروور لأي زرار
-  };
-
+  const dialog = useRef(null);
+  const [error, setError] = useState("");
+  const user = useSelector((s) => s.auth.user);
+  useEffect(() => {
+    const node = dialog.current;
+    if (open) {
+      node.showModal();
+    } else if (node.open) node.close();
+  }, [open]);
   return (
-    <StyledDrawer
-      anchor="left"
-      open={open}
+    <dialog
+      ref={dialog}
+      onCancel={onClose}
       onClose={onClose}
-      transitionDuration={500}
-      SlideProps={{
-        easing: "cubic-bezier(0.4, 0, 0.2, 1)", // نفس الـ easeInOut
-        timeout: 500, // نفس مدة الـ transition
-      }}
-      PaperProps={{
-        sx: {
-          width: 260,
-          borderRadius: "0 16px 16px 0",
-          boxShadow: "4px 0 20px rgba(0,0,0,0.15)",
-        },
-      }}
-      BackdropProps={{
-        sx: {
-          backgroundColor: "rgba(0,0,0,0.4)",
-        },
-      }}
+      className="m-0 min-h-screen w-80 max-w-[90vw] bg-cream p-7 backdrop:bg-ink/40"
     >
-      <Box sx={{ height: "100%", p: 2 }} role="presentation">
-        <List>
-          {/* زر Collection */}
-          <ListItem disablePadding>
-            <ListItemButton onClick={handleCollectionClick}>
-              <ListItemText primary="Collection" sx={{ fontWeight: 600 }} />
-              {collectionOpen ? <ExpandLess /> : <ExpandMore />}
-            </ListItemButton>
-          </ListItem>
-
-          {/* الكاتيجوريز */}
-          <Collapse in={collectionOpen} timeout="auto" unmountOnExit>
-            <List component="div" disablePadding>
-              {categories.map((cat) => (
-                <ListItem key={cat.value} sx={{ pl: 4 }}>
-                  <ListItemButton
-                    onClick={() => handleCategoryClick(cat.value)}
-                  >
-                    <ListItemText primary={cat.name} />
-                  </ListItemButton>
-                </ListItem>
-              ))}
-            </List>
-          </Collapse>
-
-          <Divider sx={{ my: 1 }} />
-
-          {/* باقي أزرار المنيو */}
-          <ListItem disablePadding>
-            <ListItemButton onClick={() => handleItemClick("/")}>
-              <ListItemText primary="Home" />
-            </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding>
-            <ListItemButton onClick={() => handleItemClick("/cart")}>
-              <ListItemText primary="Cart" />
-            </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding>
-            <ListItemButton onClick={() => handleItemClick("/checkout")}>
-              <ListItemText primary="Checkout" />
-            </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding>
-            <ListItemButton onClick={() => handleItemClick("/signin")}>
-              <ListItemText primary="Sign In" />
-            </ListItemButton>
-          </ListItem>
-          {isAuthenticated && (
-            <ListItem disablePadding>
-              <ListItemButton
-                onClick={() => {
-                  dispatch(logout());
-                  navigate("/");
-                  onClose();
-                }}
-              >
-                <ListItemText primary="Logout" />
-              </ListItemButton>
-            </ListItem>
-          )}
-        </List>
-      </Box>
-    </StyledDrawer>
+      <div className="mb-8 flex items-center justify-between">
+        <h2 className="font-display text-2xl">Explore market</h2>
+        <button onClick={onClose} aria-label="Close menu" className="p-2">
+          <Icon name="close" />
+        </button>
+      </div>
+      <nav aria-label="Account navigation" className="flex flex-col gap-5">
+        {[
+          ["Home", "/"],
+          ["All collections", "/collection"],
+          ["Shopping bag", "/cart"],
+          ["My orders", "/orders"],
+          ["My account", "/profile"],
+          ["Contact us", "/contact"],
+        ].map(([label, path]) => (
+          <Link key={path} to={path} onClick={onClose}>
+            {label}
+          </Link>
+        ))}
+        {user?.role === "admin" && <a href="/admin/">Dashboard</a>}
+        {user ? (
+          <button
+            className="btn-outline"
+            onClick={async () => {
+              const { error } = await api.auth.signOut();
+              if (error) setError(error.message);
+              else onClose();
+            }}
+          >
+            Sign out
+          </button>
+        ) : (
+          <Link to="/signin" onClick={onClose} className="btn">
+            Sign in / Create account
+          </Link>
+        )}
+      </nav>
+      {error && (
+        <p role="alert" className="mt-5 text-red-700">
+          {error}
+        </p>
+      )}
+    </dialog>
   );
 }

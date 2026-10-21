@@ -21,3 +21,15 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+.env
+.env.*
+!.env.example
+node_modules/
+admin/dist/
+coverage/
+
+dist/
+.vercel/
+server/playwright-report/
+server/test-results/
