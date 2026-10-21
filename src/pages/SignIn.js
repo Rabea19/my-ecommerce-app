@@ -25,7 +25,7 @@ export default function SignIn() {
       return;
     }
     dispatch(login(data.user));
-    navigate(location.state?.from?.pathname || "/orders", { replace: true });
+    navigate(location.state?.from?.pathname || "/profile", { replace: true });
   }
   return (
     <main className="wrap max-w-lg py-14">
