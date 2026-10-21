@@ -17,12 +17,12 @@ export default function MainLayout() {
         <Navbar onMenu={() => setOpen(true)} />
         <main
           id="main-content"
-          className="max-w-[1500px] mx-auto p-4 sm:p-7 xl:p-10"
+          className="max-w-[1700px] mx-auto p-4 sm:p-7 xl:p-8"
         >
           <Outlet />
         </main>
         <footer className="px-7 py-5 muted text-xs">
-          Market studio · Made for your everyday
+          Simple Market · Administration
         </footer>
       </div>
       {open && (
