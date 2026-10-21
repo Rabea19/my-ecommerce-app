@@ -12,7 +12,7 @@ export default function ProtectedRoute({ children }) {
         data: { session },
       } = await api.auth.getSession();
       if (!session || session.user.role !== "admin") {
-        navigate("/login");
+        navigate("/login", { replace: true });
       } else {
         setLoading(false);
       }
@@ -23,7 +23,7 @@ export default function ProtectedRoute({ children }) {
     // Optional: listen to auth changes (logout in another tab)
     const { data: listener } = api.auth.onAuthStateChange(
       (_event, session) => {
-        if (!session || session.user.role !== "admin") navigate("/login");
+        if (!session || session.user.role !== "admin") navigate("/login", { replace: true });
       },
     );
 
@@ -32,7 +32,7 @@ export default function ProtectedRoute({ children }) {
     };
   }, [navigate]);
 
-  if (loading) return <div className="text-white p-8">Checking session...</div>;
+  if (loading) return <div className="text-[#50345f] p-8">Checking session...</div>;
 
   return children;
 }
