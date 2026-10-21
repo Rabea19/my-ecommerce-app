@@ -1,13 +1,15 @@
 import { useRecords, money, date } from "../lib/admin";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import { api } from "../lib/api";
 import { PageHeader, State, Status } from "../components/AdminUI";
 export default function Orders() {
   const { data, loading, error, refresh } = useRecords("orders");
+  const [params, setParams] = useSearchParams();
+  const filter = params.get("status") || "all";
+  const setFilter = value => setParams(value === "all" ? {} : { status: value });
   const [q, setQ] = useState(""),
-    [filter, setFilter] = useState("all"),
     [busy, setBusy] = useState(false);
   const filtered = data.filter(
     (o) =>
