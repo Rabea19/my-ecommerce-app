@@ -2,6 +2,7 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import Icon from "./Icon";
+import AnnouncementBar from "./AnnouncementBar";
 export default function Navbar({ onMenuClick }) {
   const [query, setQuery] = useState("");
   const navigate = useNavigate();
@@ -9,9 +10,7 @@ export default function Navbar({ onMenuClick }) {
   const authenticated = useSelector((s) => s.auth.isAuthenticated);
   return (
     <>
-      <div className="bg-plum px-4 py-2.5 text-center text-xs tracking-wider text-white">
-        A little inspiration. A better everyday.
-      </div>
+      <AnnouncementBar />
       <header className="border-b border-plum/10 bg-white">
         <div className="wrap flex flex-wrap items-center justify-between gap-5 py-5">
           <div className="flex items-center gap-3">
@@ -59,12 +58,12 @@ export default function Navbar({ onMenuClick }) {
           </form>
           <div className="flex gap-4">
             <Link
-              to={authenticated ? "/orders" : "/signin"}
+              to={authenticated ? "/profile" : "/signin"}
               className="flex items-center gap-2 text-sm"
             >
               <Icon name="user" />
               <span className="hidden lg:inline">
-                {authenticated ? "My orders" : "Sign in"}
+                {authenticated ? "My account" : "Sign in"}
               </span>
             </Link>
             <Link
